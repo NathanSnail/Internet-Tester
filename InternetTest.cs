@@ -12,7 +12,6 @@ namespace InternetTest
         static void Main(string[] args)
         {
             string lockPID = File.ReadAllLines("lock.txt")[0];
-
             int curPID = Process.GetCurrentProcess().Id;
             try
             {
@@ -27,43 +26,63 @@ namespace InternetTest
             {
                 File.WriteAllText("lock.txt", curPID.ToString() + "\n" + Process.GetCurrentProcess().ToString());
             }
-            string strURL;
-            WebRequest webURL;
-            WebResponse response;
-            long startTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             // Display the number of command line arguments.
-            strURL = "https://www.example.com";
+
             while (true)
             {
-                try
-                {
-                    webURL = WebRequest.Create(strURL);
-                    startTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                    response = webURL.GetResponse();
-                    long timeTaken = DateTimeOffset.Now.ToUnixTimeMilliseconds() - startTime;
-                    if (timeTaken > 1000)
-                    {
-                        Console.WriteLine("Warn: {0} took {1}ms (Bad Ping)", DateTimeOffset.FromUnixTimeMilliseconds(startTime), timeTaken);
-                        LogToFile($"Warn: {DateTimeOffset.FromUnixTimeMilliseconds(startTime)} took {timeTaken}ms (Bad Ping)");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Info: {0} took {1}ms", DateTimeOffset.FromUnixTimeMilliseconds(startTime), timeTaken);
-                        LogToFile($"Info: {DateTimeOffset.FromUnixTimeMilliseconds(startTime)} took {timeTaken}ms");
-                    }
-                }
-                catch
-                {
-                    Console.WriteLine("Error at {0}", DateTimeOffset.FromUnixTimeMilliseconds(startTime));
-                    LogToFile($"Error at {DateTimeOffset.FromUnixTimeMilliseconds(startTime)}");
-                }
-                Thread.Sleep(Math.Max(0, 1000));
+                long startTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+                HeartBeat(startTime);
+                CheckWeb(startTime);
+                //wait
+                Thread.Sleep(60000);
+                //     try
+                //     {
+                //         
+                //         if (timeTaken > 1000)
+                //         {
+                //             Console.WriteLine("Warn: {0} took {1}ms (Bad Ping)", DateTimeOffset.FromUnixTimeMilliseconds(startTime), timeTaken);
+                //             LogToFile($"Warn: {DateTimeOffset.FromUnixTimeMilliseconds(startTime)} took {timeTaken}ms (Bad Ping)");
+                //         }
+                //         else
+                //         {
+                //             Console.WriteLine("Info: {0} took {1}ms", DateTimeOffset.FromUnixTimeMilliseconds(startTime), timeTaken);
+                //             LogToFile($"Info: {DateTimeOffset.FromUnixTimeMilliseconds(startTime)} took {timeTaken}ms");
+                //         }
+                //     }
+                //     catch
+                //     {
+                //         Console.WriteLine("Error at {0}", DateTimeOffset.FromUnixTimeMilliseconds(startTime));
+                //         LogToFile($"Error at {DateTimeOffset.FromUnixTimeMilliseconds(startTime)}");
+                //     }
+                //     Thread.Sleep(Math.Max(0, 1000));
             }
-
         }
-        public static async Task LogToFile(string info)
+
+        public static async Task HeartBeat(long startTime)
         {
-            File.AppendAllTextAsync("log.txt", info + "\n");
+            LogToFile("Heart Beat", startTime, 0);
+        }
+
+        public static async Task CheckWeb(long startTime)
+        {
+            string strURL = "https://www.orcon.net.nz/terms/broadband/";
+            long duration = -1;
+            try
+            {
+                HttpWebRequest webURL = (HttpWebRequest)WebRequest.Create(strURL);
+                webURL.Timeout = 30000;
+                WebResponse response = webURL.GetResponse();
+                duration = DateTimeOffset.Now.ToUnixTimeMilliseconds() - startTime;
+            }
+            catch
+            {
+
+            }
+            LogToFile("Web", startTime, duration);
+        }
+        public static async Task LogToFile(string name, long startTime, long duration)
+        {
+            File.AppendAllTextAsync("log.txt", $"{name}, {startTime}, {duration}" + "\n");
         }
     }
 }
