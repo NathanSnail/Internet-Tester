@@ -11,6 +11,17 @@ namespace InternetTest
     {
         static void Main(string[] args)
         {
+            //create files
+            if (!(File.Exists("log.txt")))
+            {
+                File.Create("log.txt");
+            }
+            if (!(File.Exists("lock.txt")))
+            {
+                File.Create("lock.txt").Close();
+                File.AppendAllLines("lock.txt", new string[2] { "1", "2" });
+            }
+
             string lockPID = File.ReadAllLines("lock.txt")[0];
             int curPID = Process.GetCurrentProcess().Id;
             try
@@ -35,26 +46,6 @@ namespace InternetTest
                 CheckWeb(startTime);
                 //wait
                 Thread.Sleep(60000);
-                //     try
-                //     {
-                //         
-                //         if (timeTaken > 1000)
-                //         {
-                //             Console.WriteLine("Warn: {0} took {1}ms (Bad Ping)", DateTimeOffset.FromUnixTimeMilliseconds(startTime), timeTaken);
-                //             LogToFile($"Warn: {DateTimeOffset.FromUnixTimeMilliseconds(startTime)} took {timeTaken}ms (Bad Ping)");
-                //         }
-                //         else
-                //         {
-                //             Console.WriteLine("Info: {0} took {1}ms", DateTimeOffset.FromUnixTimeMilliseconds(startTime), timeTaken);
-                //             LogToFile($"Info: {DateTimeOffset.FromUnixTimeMilliseconds(startTime)} took {timeTaken}ms");
-                //         }
-                //     }
-                //     catch
-                //     {
-                //         Console.WriteLine("Error at {0}", DateTimeOffset.FromUnixTimeMilliseconds(startTime));
-                //         LogToFile($"Error at {DateTimeOffset.FromUnixTimeMilliseconds(startTime)}");
-                //     }
-                //     Thread.Sleep(Math.Max(0, 1000));
             }
         }
 
