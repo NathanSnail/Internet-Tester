@@ -42,19 +42,20 @@ namespace InternetTest
             while (true)
             {
                 long startTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                HeartBeat(startTime);
-                CheckWeb(startTime);
+                Task.Factory.StartNew(() => HeartBeat(startTime));
+                Task.Factory.StartNew(() => CheckWeb(startTime));
+                Task.Factory.StartNew(() => CheckLAN(startTime));
                 //wait
-                Thread.Sleep(60000);
+                Thread.Sleep(1000);
             }
         }
 
-        public static async Task HeartBeat(long startTime)
+        public static void HeartBeat(long startTime)
         {
             LogToFile("Heart Beat", startTime, 0);
         }
 
-        public static async Task CheckWeb(long startTime)
+        public static void CheckWeb(long startTime)
         {
             string strURL = "https://www.orcon.net.nz/terms/broadband/";
             long duration = -1;
@@ -71,9 +72,27 @@ namespace InternetTest
             }
             LogToFile("Web", startTime, duration);
         }
-        public static async Task LogToFile(string name, long startTime, long duration)
+        public static void CheckLAN(long startTime)
+        {
+            string strURL = "http://10.0.0.1/";
+            long duration = -1;
+            try
+            {
+                HttpWebRequest webURL = (HttpWebRequest)WebRequest.Create(strURL);
+                webURL.Timeout = 30000;
+                WebResponse response = webURL.GetResponse();
+                duration = DateTimeOffset.Now.ToUnixTimeMilliseconds() - startTime;
+            }
+            catch
+            {
+
+            }
+            LogToFile("LAN", startTime, duration);
+        }
+        public static async void LogToFile(string name, long startTime, long duration)
         {
             File.AppendAllTextAsync("log.txt", $"{name}, {startTime}, {duration}" + "\n");
         }
     }
 }
+//http://10.0.0.1/
