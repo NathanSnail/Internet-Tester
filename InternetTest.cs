@@ -14,7 +14,7 @@ namespace InternetTest
             //create files
             if (!(File.Exists("log.txt")))
             {
-                File.Create("log.txt");
+                File.Create("log.txt").Close();
             }
             if (!(File.Exists("lock.txt")))
             {
@@ -46,7 +46,7 @@ namespace InternetTest
                 Task.Factory.StartNew(() => CheckWeb(startTime));
                 Task.Factory.StartNew(() => CheckLAN(startTime));
                 //wait
-                Thread.Sleep(1000);
+                Thread.Sleep(30 * 1000);
             }
         }
 
@@ -91,7 +91,7 @@ namespace InternetTest
         }
         public static async void LogToFile(string name, long startTime, long duration)
         {
-            File.AppendAllTextAsync("log.txt", $"{name}, {startTime}, {duration}" + "\n");
+            await File.AppendAllTextAsync("log.txt", $"{name}, {startTime}, {duration}" + "\n");
         }
     }
 }
