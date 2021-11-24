@@ -75,23 +75,23 @@ namespace InternetTest
             }
             LogToFile("Web", startTime, duration);
         }
-        // public static void CheckRouter(long startTime)
-        // {
-        //     string strURL = "http://10.0.0.1/";
-        //     long duration = cycleTime / 2;
-        //     try
-        //     {
-        //         HttpWebRequest webURL = (HttpWebRequest)WebRequest.Create(strURL);
-        //         webURL.Timeout = cycleTime / 2;
-        //         WebResponse response = webURL.GetResponse();
-        //         duration = DateTimeOffset.Now.ToUnixTimeMilliseconds() - startTime;
-        //     }
-        //     catch
-        //     {
-        //         duration = cycleTime / 2;
-        //     }
-        //     LogToFile("Router", startTime, duration);
-        // }
+        public static void CheckRouter(long startTime)
+        {
+            string strURL = "http://10.0.0.1/";
+            long duration = cycleTime / 2;
+            try
+            {
+                HttpWebRequest webURL = (HttpWebRequest)WebRequest.Create(strURL);
+                webURL.Timeout = cycleTime / 2;
+                WebResponse response = webURL.GetResponse();
+                duration = DateTimeOffset.Now.ToUnixTimeMilliseconds() - startTime;
+            }
+            catch
+            {
+                duration = cycleTime / 2;
+            }
+            LogToFile("Router", startTime, duration);
+        }
         public static void CheckPing(long startTime)
         {
             try
