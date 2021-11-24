@@ -4,11 +4,13 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Net.NetworkInformation;
 
 namespace InternetTest
 {
     class InternetTest
     {
+        public static int cycleTime = 1000;
         static void Main(string[] args)
         {
             //create files
@@ -44,9 +46,10 @@ namespace InternetTest
                 long startTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
                 Task.Factory.StartNew(() => HeartBeat(startTime));
                 Task.Factory.StartNew(() => CheckWeb(startTime));
-                Task.Factory.StartNew(() => CheckLAN(startTime));
+                // Task.Factory.StartNew(() => CheckRouter(startTime));
+                Task.Factory.StartNew(() => CheckPing(startTime));
                 //wait
-                Thread.Sleep(30 * 1000);
+                Thread.Sleep(cycleTime);
             }
         }
 
@@ -58,41 +61,56 @@ namespace InternetTest
         public static void CheckWeb(long startTime)
         {
             string strURL = "https://www.orcon.net.nz/terms/broadband/";
-            long duration = -1;
+            long duration = cycleTime / 2;
             try
             {
                 HttpWebRequest webURL = (HttpWebRequest)WebRequest.Create(strURL);
-                webURL.Timeout = 30000;
+                webURL.Timeout = cycleTime / 2;
                 WebResponse response = webURL.GetResponse();
                 duration = DateTimeOffset.Now.ToUnixTimeMilliseconds() - startTime;
             }
             catch
             {
-
+                duration = cycleTime / 2;
             }
             LogToFile("Web", startTime, duration);
         }
-        public static void CheckLAN(long startTime)
+        // public static void CheckRouter(long startTime)
+        // {
+        //     string strURL = "http://10.0.0.1/";
+        //     long duration = cycleTime / 2;
+        //     try
+        //     {
+        //         HttpWebRequest webURL = (HttpWebRequest)WebRequest.Create(strURL);
+        //         webURL.Timeout = cycleTime / 2;
+        //         WebResponse response = webURL.GetResponse();
+        //         duration = DateTimeOffset.Now.ToUnixTimeMilliseconds() - startTime;
+        //     }
+        //     catch
+        //     {
+        //         duration = cycleTime / 2;
+        //     }
+        //     LogToFile("Router", startTime, duration);
+        // }
+        public static void CheckPing(long startTime)
         {
-            string strURL = "http://10.0.0.1/";
-            long duration = -1;
             try
             {
-                HttpWebRequest webURL = (HttpWebRequest)WebRequest.Create(strURL);
-                webURL.Timeout = 30000;
-                WebResponse response = webURL.GetResponse();
-                duration = DateTimeOffset.Now.ToUnixTimeMilliseconds() - startTime;
+                new Ping().SendPingAsync(IPAddress.Parse("10.0.0.1"), cycleTime / 2);
+                LogToFile("Ping", startTime, DateTimeOffset.Now.ToUnixTimeMilliseconds() - startTime);
             }
             catch
             {
-
+                LogToFile("Ping", startTime, cycleTime / 2);
             }
-            LogToFile("LAN", startTime, duration);
         }
         public static async void LogToFile(string name, long startTime, long duration)
         {
-            await File.AppendAllTextAsync("log.txt", $"{name}, {startTime}, {duration}" + "\n");
+            try
+            {
+                await File.AppendAllTextAsync("log.txt", $"{name}, {startTime}, {duration}" + "\n");
+            }
+            catch { }
         }
     }
 }
-//http://10.0.0.1/
