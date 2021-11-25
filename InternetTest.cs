@@ -10,7 +10,7 @@ namespace InternetTest
 {
     class InternetTest
     {
-        public static int cycleTime = 10000;
+        public static int cycleTime = 15000;
         static void Main(string[] args)
         {
             //create files
