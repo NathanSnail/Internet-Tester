@@ -10,7 +10,7 @@ namespace InternetTest
 {
     class InternetTest
     {
-        public static int cycleTime = 1000;
+        public static int cycleTime = 10000;
         static void Main(string[] args)
         {
             //create files
@@ -96,8 +96,8 @@ namespace InternetTest
         {
             try
             {
-                new Ping().SendPingAsync(IPAddress.Parse("10.0.0.1"), cycleTime / 2);
-                LogToFile("Ping", startTime, DateTimeOffset.Now.ToUnixTimeMilliseconds() - startTime);
+                new Ping().SendPingAsync(IPAddress.Parse("10.0.0.1"), cycleTime / 2)
+                    .ContinueWith(pingTask => LogToFile("Ping", startTime, DateTimeOffset.Now.ToUnixTimeMilliseconds() - startTime));
             }
             catch
             {
